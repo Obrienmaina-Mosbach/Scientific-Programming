@@ -12,19 +12,19 @@ s1 = s1.lower()
 char_list1 = list(s1)
 
 
-if char_list1[0] in s2 and char_list1[1] in s2 and char_list1[2] in s2 == True:
+if char_list1[0] in s2 and char_list1[1] in s2 and char_list1[2] in s2:
     print(len(s2)-3)
-    
-elif char_list1[0] and char_list1[1] in s2 == True:
+
+elif char_list1[0] and char_list1[1] in s2:
     print(len(s2)-2)
     
-elif char_list1[0] and char_list1[2] in s2 == True:
+elif char_list1[0] and char_list1[2] in s2:
     print(len(s2)-2)
    
-elif char_list1[1] and char_list1[2] in s2 == True:
+elif char_list1[1] and char_list1[2] in s2:
     print(len(s2)-2)
 
-elif char_list1[0] in s2 or char_list1[1] in s2 or char_list1[2] in s2 == True:
+elif char_list1[0] in s2 or char_list1[1] in s2 or char_list1[2] in s2:
     print(len(s2)-1)
 else:
     print(len(s2))
