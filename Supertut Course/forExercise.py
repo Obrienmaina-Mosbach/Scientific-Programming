@@ -13,7 +13,6 @@ print(prime)
 
 
 for i in range(2):
-    for j in range(4):
+    for j in range(2):
         print(f'Element {i}, {j}')
         
-    
