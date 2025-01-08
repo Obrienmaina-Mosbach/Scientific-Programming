@@ -3,10 +3,11 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 data = pd.read_csv("https://raw.githubusercontent.com/nileshely/SuperStore-Dataset-2019-2022/main/superstore_dataset.csv")
+#data = pd.read_csv("../data/superstore_dataset.csv")
 
 
 # Viewing data
-print("First 10 rows:\n", data.head(), data.describe())
+print("First 10 rows:\n", data.head(10), data.describe())
 print("\nSummary Info:\n")
 data.info()
 
@@ -20,7 +21,7 @@ columns_with_missing = data.isnull().any()
 print(columns_with_missing)'''
 
 # Total missing values in the entire dataset
-total_missing = data.isnull().sum().sum()
+total_missing = data.isnull().sum()
 print(f"Total missing values: {total_missing}")
 
 '''# Visualize missing values as a heatmap
@@ -41,7 +42,7 @@ if 'Revenue' not in data.columns:
         data['Revenue'] = data['quantity'] * (data['sales']/data['quantity'])
         print("Revenue column created successfully!")
     else:
-        print("Error: The required columns 'Quantity' and 'Price' are missing.")
+        print("Error: The required columns 'quantity' and 'sales' are missing.")
 else:
     print("'Revenue' column already exists.")
 
