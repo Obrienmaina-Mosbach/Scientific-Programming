@@ -31,8 +31,6 @@ plt.figure(figsize=(12, 8))
 sns.heatmap(housingdata.corr(), annot=True, cmap="coolwarm")
 plt.show()
 
-
-
 print('-------------Split Data---------------')
 
 # Define features (X) and target (y)

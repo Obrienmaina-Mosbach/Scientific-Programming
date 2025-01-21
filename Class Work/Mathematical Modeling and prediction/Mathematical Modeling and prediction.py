@@ -75,11 +75,32 @@ print(f'Decision Tree MAE: {mae_dt}')
 print(f'Decision Tree MSE: {mse_dt}')
 #print(f'Decision Tree RMSE: {rmse_dt}'
 
-# Visualization: Comparison of Actual vs Predicted
+# Visualization: Comparison of Actual vs Predicted (for Decision Tree, Linear Regression, and Random Forest)
+plt.figure(figsize=(18,6))
+
 # Linear Regression
-plt.figure(figsize=(10, 6))
-plt.plot(y_test, y_pred_dt, marker='o', linestyle='-', color='#005634', alpha=0.7)
+plt.subplot(1, 3, 1)
+plt.scatter(y_test, y_pred_lr)
+plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], color='red', lw=2)
+plt.title("Actual vs Predicted Revenue")
 plt.xlabel("Actual Revenue")
 plt.ylabel("Predicted Revenue")
-plt.title("Actual vs Predicted Revenue")
+
+# Decision Tree
+plt.subplot(1, 3, 2)
+plt.scatter(y_test, y_pred_dt)
+plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], color='red', lw=2)
+plt.title('Decision Tree: Actual vs Predicted Revenue')
+plt.xlabel("Actual Revenue")
+plt.ylabel("Predicted Revenue")
+
+# Random Forest
+plt.subplot(1, 3, 3)
+plt.scatter(y_test, y_pred_dt)
+plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], color='red', lw=2)
+plt.title('Random Forest: Actual vs Predicted Revenue')
+plt.xlabel("Actual Revenue")
+plt.ylabel("Predicted Revenue")
+
+plt.tight_layout()
 plt.show()
