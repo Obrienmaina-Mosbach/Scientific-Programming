@@ -5,7 +5,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error
 from sklearn.model_selection import train_test_split
 # Create dataset
-data = pd.DataFrame({    'Time': range(100),    'Value': np.sin(np.linspace(0, 10, 100)) + np.random.normal(scale=0.1, size=100)})
+data = pd.DataFrame({ 'Time': range(100),'Value': np.sin(np.linspace(0, 10, 100)) + np.random.normal(scale=0.1, size=100)})
 # Add lagged features
 data['Lag_1'] = data['Value'].shift(1)
 data['Lag_2'] = data['Value'].shift(2)
