@@ -97,12 +97,12 @@ importance = rf.feature_importances_
 
 # Display feature importance
 print("\nFeature Importance:")
-for feature, importance_score in zip(iris.feature_names, importance):
+for feature, importance_score in zip(data.columns[:-2], importance):
     print(f"{feature}: {importance_score:.4f}")
 
 
 # Visualize feature importance
-sns.barplot(x=importance, y=iris.feature_names)
+sns.barplot(x=importance, y=iris['feature_names'])
 plt.title("Feature Importance in Random Forest")
 plt.show()
 
