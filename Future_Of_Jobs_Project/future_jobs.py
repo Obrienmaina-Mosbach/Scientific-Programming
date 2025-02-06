@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 import kagglehub
 import pandas as pd
 import datetime
@@ -107,7 +106,3 @@ plt.title("Predicted Job Demand Over Time")
 plt.legend()
 plt.show()
 
-=======
->>>>>>> parent of 1c21ff0 (project progress)
-=======
->>>>>>> parent of 1c21ff0 (project progress)
