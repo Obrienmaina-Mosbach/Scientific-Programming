@@ -4,9 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="88d5a3ae-30cd-46b0-9bc3-c7e9089d0e2b" name="Changes" comment="">
+    <list default="true" id="88d5a3ae-30cd-46b0-9bc3-c7e9089d0e2b" name="Changes" comment="Code Update">
+      <change afterPath="$PROJECT_DIR$/Future_Of_Jobs_Project/jobs_future_linkedin.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Future_Of_Jobs_Project/jobs_prediction.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Future_Of_Jobs_Project/future_jobs.py" beforeDir="false" afterPath="$PROJECT_DIR$/Future_Of_Jobs_Project/future_jobs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/R/library.r" beforeDir="false" afterPath="$PROJECT_DIR$/R/library.r" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/R/visualize.r" beforeDir="false" afterPath="$PROJECT_DIR$/R/visualize.r" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -25,6 +29,9 @@
     &quot;accountId&quot;: &quot;7f1a897a-8018-4cc4-90b5-421909fde809&quot;
   }
 }</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 5
 }</component>
@@ -36,12 +43,21 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Python.future_jobs.executor": "Run",
+    "Python.jobs.executor": "Run",
+    "Python.jobs_future.executor": "Run",
+    "Python.jobs_prediction.executor": "Run",
     "Python.skills_jobs.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main"
+    "git-widget-placeholder": "main",
+    "settings.editor.selected.configurable": "RainbowCSV.Settings"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/Future_Of_Jobs_Project" />
+    </key>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -58,6 +74,15 @@
       <option name="presentableId" value="Default" />
       <updated>1738171292586</updated>
     </task>
+    <task id="LOCAL-00001" summary="Code Update">
+      <option name="closed" value="true" />
+      <created>1739298273106</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1739298273107</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -70,5 +95,9 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Code Update" />
+    <option name="LAST_COMMIT_MESSAGE" value="Code Update" />
   </component>
 </project>

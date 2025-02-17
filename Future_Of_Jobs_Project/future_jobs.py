@@ -1,71 +1,69 @@
+import numpy as np
 import pandas as pd
 import datetime
+
+from matplotlib import lines
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import mean_absolute_error
 from sklearn.ensemble import RandomForestRegressor
 import matplotlib.pyplot as plt
-
-# Download latest version
-#path = kagglehub.dataset_download("name")
-
-#print("Path to dataset files:", path)
+from webencodings import labels
+import matplotlib.dates as mdates
+import seaborn as sns
 
 # Load job postings dataset
-jobs_df = pd.read_csv("./data/linkedin_job_postings.csv")
-
-# Load skills dataset
-skills_df = pd.read_csv("./data/job_skills.csv")
-
-# Lets Merge on job_link
-merged_df = jobs_df.merge(skills_df, on="job_link", how="left")  # 'left' keeps all job postings
+jobs_df = pd.read_csv("./data/job_descriptions.csv")
 
 # Convert date_posted to datetime format
-merged_df["last_processed_time"] = pd.to_datetime(merged_df["last_processed_time"], errors="coerce")
+jobs_df["Job Posting Date"] = pd.to_datetime(jobs_df["Job Posting Date"], errors="coerce")
 
 # Extract year and month
-merged_df["year"] = merged_df["last_processed_time"].dt.year
-merged_df["month"] = merged_df["last_processed_time"].dt.month
+jobs_df["year"] = jobs_df["Job Posting Date"].dt.year
+jobs_df["month"] = jobs_df["Job Posting Date"].dt.month
 
 # Aggregate job postings by job title, job skills and location
-job_trends = merged_df.groupby(["job_skills", "job_title", "job_location", "year", "month"]).size().reset_index(name="job_count")
+job_trends = jobs_df.groupby(["skills", "Job Title", "location", "year", "month"]).size().reset_index(name="job_count")
 
 # Sort by time
-job_trends = job_trends.sort_values(by=["job_skills", "job_title", "job_location", "year", "month"])
+job_trends = job_trends.sort_values(by=["skills", "Job Title", "location", "year", "month"])
 
 # Shift job count to use the previous month's demand as a feature
-job_trends["job_count_last_month"] = job_trends.groupby(["job_skills", "job_title", "job_location"])["job_count"].shift(1)
+job_trends["job_count_last_month"] = job_trends.groupby(["skills", "Job Title", "location"])["job_count"].shift(1)
 
 # Rolling average of job demand for the past 3 months
-job_trends["job_count_avg_3m"] = job_trends.groupby(["job_skills", "job_title", "job_location"])["job_count"].rolling(3).mean().reset_index(drop=True)
+job_trends["job_count_avg_3m"] = job_trends.groupby(["skills", "Job Title", "location"])["job_count"].rolling(3).mean().reset_index(drop=True)
 
 # Encode categorical variables
 label_encoders = {}
-for col in ["job_skills", "job_title", "job_location", "year", "month"]:
+for col in ["skills", "Job Title", "location", "year", "month"]:
     le = LabelEncoder()
-    job_trends[col] = le.fit_transform(job_trends[col])
+    le.fit(jobs_df[col].unique())  # Fit with all unique values
+    job_trends[col] = le.transform(job_trends[col])
     label_encoders[col] = le  # Store encoders for later use
 
 # Drop rows with NaN values
-job_trends.dropna(subset=["job_count_last_month", "job_count_avg_3m"])
+job_trends.dropna(subset=["job_count_last_month", "job_count_avg_3m"], inplace=True)
 
 # Select features & target
-features = ["year", "month", "job_skills", "job_title", "job_location", "job_count_last_month", "job_count_avg_3m"]
+features = ["year", "month", "skills", "Job Title", "location", "job_count_last_month", "job_count_avg_3m"]
 X = job_trends[features]
 y = job_trends["job_count"]
 
 # Split data into training & testing sets
+from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 # Train the Random Forest model
+from sklearn.ensemble import RandomForestRegressor
 rf = RandomForestRegressor(n_estimators=200, random_state=42)
 rf.fit(X_train, y_train)
 
 y_pred_rf = rf.predict(X_test)
 
 # Predicting future job postings
-future_months = 6  # Predict for the next 6 months
-last_date = merged_df["last_processed_time"].max()
+future_months = 24  # Predict for the next 6 months
+last_date = jobs_df["Job Posting Date"].max()
 future_dates = [last_date + pd.DateOffset(months=i) for i in range(1, future_months + 1)]
 
 # Create a DataFrame for future job postings
@@ -75,73 +73,65 @@ for date in future_dates:
         future_jobs.append({
             "year": date.year,
             "month": date.month,
-            "job_skills": row["job_skills"],
-            "job_title": row["job_title"],
-            "job_location": row["job_location"],
+            "skills": row["skills"],
+            "Job Title": row["Job Title"],
+            "location": row["location"],
             "job_count_last_month": row["job_count"],  # Last available job count
             "job_count_avg_3m": row["job_count_avg_3m"],  # Rolling average
         })
 
 future_df = pd.DataFrame(future_jobs)
 
-# Combine training and future datasets for encoding
-combined_df = pd.concat([job_trends, future_df], ignore_index=True)
-
-# Encode categorical variables using combined data
-for col in ["year", "month", "job_skills", "job_title", "job_location"]:
-    le = LabelEncoder()
-    combined_df[col] = le.fit_transform(combined_df[col])
-    label_encoders[col] = le  # Update encoders with new fit
-
-# Split the combined data back into training and future datasets
-job_trends_encoded = combined_df.iloc[:len(job_trends)]
-future_df_encoded = combined_df.iloc[len(job_trends):]
-
-# Update the original dataframes with encoded values
-job_trends.update(job_trends_encoded)
-future_df.update(future_df_encoded)
-
-# Select features & target
-features = ["year", "month", "job_skills", "job_title", "job_location", "job_count_last_month", "job_count_avg_3m"]
-X = job_trends[features]
-y = job_trends["job_count"]
-
-# Split data into training & testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-# Train the Random Forest model
-rf = RandomForestRegressor(n_estimators=200, random_state=42)
-rf.fit(X_train, y_train)
-
-# Predict job postings for future months
+# Predict job counts for the future data
 future_df["predicted_job_count"] = rf.predict(future_df[features])
 
 # Display predictions
-print(future_df[["year", "month", "job_skills", "job_title", "job_location", "predicted_job_count"]])
+print(future_df[["year", "month", "skills", "Job Title", "location", "predicted_job_count"]])
 
+# Decode job skills to original names
+job_trends["Job Title"] = label_encoders["Job Title"].inverse_transform(job_trends["Job Title"])
+
+# Get top 10 skills with highest job postings
+top_skills = job_trends.groupby("Job Title")["job_count"].sum().sort_values(ascending=False).head(20)
+
+top_jobs = job_trends.groupby("Job Title")["job_count"].sum().sort_values(ascending=False).head(20)
 
 plt.figure(figsize=(12, 6))
-for skill in future_df["job_skills"].unique():
-    subset = future_df[future_df["job_skills"] == skill]
-    plt.plot(subset["month"], subset["predicted_job_count"], label=f"Skill {skill}")
+sns.barplot(x=top_jobs.values, y=top_jobs.index, palette="viridis")
 
+plt.xlabel("Total Job Count")
+plt.ylabel("Job Title")
+plt.title("Top 20 Job Titles in Demand")
+plt.grid(axis="x")
+plt.show()
+
+plt.figure(figsize=(12, 6))
+sns.lineplot(data=job_trends, x="month", y="job_count", hue="year", marker="o")
+
+plt.title("Job Demand Trends Over Time")
+plt.xlabel("Month")
+plt.ylabel("Number of Job Postings")
+plt.legend(title="Year")
+plt.grid(True)
+plt.show()
+
+importances = rf.feature_importances_
+feature_names = features
+
+plt.figure(figsize=(10, 5))
+sns.barplot(x=importances, y=feature_names, palette="Blues_r")
+
+plt.xlabel("Importance")
+plt.ylabel("Feature")
+plt.title("Feature Importance in Job Demand Prediction")
+plt.show()
+
+plt.figure(figsize=(12, 6))
+sns.lineplot(data=future_df, x="month", y="predicted_job_count", hue="year", marker="o")
+
+plt.title("Predicted Job Demand for Next 24 Months")
 plt.xlabel("Month")
 plt.ylabel("Predicted Job Count")
-plt.title("Predicted Job Demand Over Time")
-plt.legend()
-plt.show()
-
-# Group by year and month to get the total job count per month
-monthly_trends = job_trends.groupby(["year", "month"])["job_count"].sum().reset_index()
-
-# Create a line chart
-plt.figure(figsize=(10, 6))
-plt.plot(monthly_trends["year"].astype(str) + '-' + monthly_trends["month"].astype(str), monthly_trends["job_count"], marker='o')
-plt.title("Job Postings Trend Over Time")
-plt.xlabel("Time (Year-Month)")
-plt.ylabel("Number of Job Postings")
-plt.xticks(rotation=45)
+plt.legend(title="Year")
 plt.grid(True)
-plt.tight_layout()
 plt.show()
-
