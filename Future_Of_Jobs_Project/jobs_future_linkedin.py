@@ -1,11 +1,12 @@
 import numpy as np
 import pandas as pd
-import datetime
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_squared_error, r2_score
+from wordcloud import WordCloud
 
 # Load job postings dataset
 jobs_df = pd.read_csv('./data/postings.csv')
@@ -29,9 +30,8 @@ job_trends['job_count_last_month'] = job_trends.groupby(['title', 'location'])['
 # Rolling average of job demand for the past 3 months
 job_trends['job_count_avg_3m'] = job_trends.groupby(['title', 'location'])['job_count'].rolling(3).mean().reset_index(drop=True)
 
-# Check if the DataFrame is empty after dropping NaN values
-if job_trends.empty:
-    raise ValueError("The DataFrame is empty after dropping NaN values. Please check your data preprocessing steps.")
+# Drop NaN values
+#job_trends = job_trends.dropna()
 
 # Encode categorical variables
 label_encoders = {}
@@ -52,10 +52,46 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 rf = RandomForestRegressor(n_estimators=200, random_state=42)
 rf.fit(X_train, y_train)
 
+# Predict on the test set
 y_pred_rf = rf.predict(X_test)
 
+# Model Evaluation Metrics
+mse = mean_squared_error(y_test, y_pred_rf)
+r2 = r2_score(y_test, y_pred_rf)
+print(f'Mean Squared Error: {mse}')
+print(f'R^2 Score: {r2}')
+
+# Feature Importance
+importances = rf.feature_importances_
+feature_names = X_train.columns
+sorted_indices = np.argsort(importances)[::-1]
+
+plt.figure(figsize=(10, 5))
+sns.barplot(x=importances[sorted_indices], y=np.array(feature_names)[sorted_indices], palette='Blues_r')
+plt.xlabel('Importance Score')
+plt.ylabel('Feature')
+plt.title('Feature Importance in Job Demand Prediction')
+plt.show()
+
+# Actual vs Predicted Job Counts
+plt.figure(figsize=(10, 6))
+plt.scatter(y_test, y_pred_rf, alpha=0.5)
+plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'k--', lw=2)
+plt.xlabel('Actual Job Count')
+plt.ylabel('Predicted Job Count')
+plt.title('Actual vs Predicted Job Counts')
+plt.show()
+
+# Residual Analysis
+residuals = y_test - y_pred_rf
+plt.figure(figsize=(10, 6))
+sns.histplot(residuals, kde=True)
+plt.xlabel('Residuals')
+plt.title('Residual Analysis')
+plt.show()
+
 # Predicting future job postings
-future_months = 18  # Predict for the next 24 months
+future_months = 18  # Predict for the next 18 months
 last_date = jobs_df['original_listed_time'].max()
 future_dates = [last_date + pd.DateOffset(months=i) for i in range(1, future_months + 1)]
 
@@ -107,24 +143,28 @@ plt.legend(title='Year')
 plt.grid(True)
 plt.show()
 
-importances = rf.feature_importances_
-feature_names = features
-
-plt.figure(figsize=(10, 5))
-sns.barplot(x=importances, y=feature_names, palette='Blues_r')
-
-plt.xlabel('Importance')
-plt.ylabel('Feature')
-plt.title('Feature Importance in Job Demand Prediction')
-plt.show()
-
 plt.figure(figsize=(12, 6))
 sns.lineplot(data=future_df, x='month', y='predicted_job_count', hue='year', marker='o')
 
-plt.title('Predicted Job Demand for Next 24 Months')
+plt.title('Predicted Job Demand for Next 18 Months')
 plt.xlabel('Month')
 plt.ylabel('Predicted Job Count')
 plt.legend(title='Year')
 plt.grid(True)
 plt.show()
 
+# Get the top 50 job titles
+top_50_titles = job_trends['title'].value_counts().head(50)
+
+# Create a string of job titles for the Word Cloud
+job_titles_str = ' '.join(top_50_titles.index)
+
+# Generate the Word Cloud with custom color and font
+wordcloud = WordCloud(width=800, height=400, background_color='white', colormap='viridis').generate(job_titles_str)
+
+# Display the Word Cloud
+plt.figure(figsize=(10, 5))
+plt.imshow(wordcloud, interpolation='bilinear')
+plt.axis('off')
+plt.title('Top 50 Job Titles Word Cloud')
+plt.show()
